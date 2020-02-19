@@ -10,7 +10,14 @@ let contacts = []
  * *** push: resources/push.jpg
  */
 function addContact(event) {
-  
+  event.preventDefault()
+  let form = event.target
+  // console.log(form.eContact.checked)
+  contacts.push({ id: generateId(), name: form.name.value, phone: form.phone.value, eContact: form.eContact.checked })
+  // toggleAddContactForm()
+  form.reset()
+  saveContacts()
+  drawContacts()
 }
 
 /**
@@ -18,7 +25,7 @@ function addContact(event) {
  * Saves the string to localstorage at the key contacts 
  */
 function saveContacts() {
- 
+  window.localStorage.setItem("contacts", JSON.stringify(contacts))
 }
 
 /**
@@ -27,7 +34,10 @@ function saveContacts() {
  * the contacts array to the retrieved array
  */
 function loadContacts() {
-  
+  let contactsData = JSON.parse(window.localStorage.getItem("contacts"))
+  if (contactsData) {
+    contacts = contactsData
+  }
 }
 
 /**
@@ -36,7 +46,22 @@ function loadContacts() {
  * contacts in the contacts array
  */
 function drawContacts() {
- 
+  let template = ""
+  contacts.forEach(contact => {
+    template += `
+      <div class="card mt-1 mb-1 ${contact.eContact == true ? "emergency-contact" : ""}">
+        <h3 class="mt-1 mb-1">${contact.name}</h3>
+        <div class="d-flex space-between">
+          <p>
+            <i class="fa fa-fw fa-phone"></i>
+            <span>${contact.phone}</span>
+          </p>
+          <i class="action fa fa-trash text-danger" onclick="removeContact('${contact.id}')"></i>
+        </div>
+      </div>`
+  })
+
+  document.getElementById("contact-list").innerHTML = template
 }
 
 /**
@@ -49,13 +74,25 @@ function drawContacts() {
  * @param {string} contactId 
  */
 function removeContact(contactId) {
+  // console.log("remove contact")
+  let currentIndex = contacts.findIndex(contact => contact.id == contactId)
+  if (currentIndex != -1) {
+    contacts.splice(currentIndex, 1)
+  }
+  saveContacts()
+  drawContacts()
 }
 
 /**
  * Toggles the visibility of the AddContact Form
  */
 function toggleAddContactForm() {
-
+  console.log("Toggle the add contact form")
+  let newContactFormElem = document.getElementById("new-contact-form")
+  if (newContactFormElem.classList.contains("hidden")) {
+    newContactFormElem.classList.remove("hidden")
+  }
+  else { newContactFormElem.classList.add("hidden") }
 }
 
 
